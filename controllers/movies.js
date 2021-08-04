@@ -53,17 +53,13 @@ const createMovie = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
-  const requestedMovieId = req.params.id;
-  const userId = req.user._id;
-  Movie.findById(requestedMovieId)
-    .then((requestedMovie) => {
-      if (requestedMovie.owner.toString() === userId) {
-        requestedMovie.remove()
-          .then(() => res.send({ message: 'Error, you cannot delete someone else movie' }))
-          .catch(next);
-      } else {
-        throw new ForbiddenError('Error, you cannot delete someone else movie');
+  Movie.findById(req.params.movieId)
+    .then((card) => {
+      if (card.owner.toString() === req.user._id) {
+       return  card.remove()
+          .then(() => res.send({ message: 'Removed movie card' }))
       }
+        throw new ForbiddenError('Error, you cannot delete someone else movie');
     })
     .catch(() => { throw new NotFoundError('Cant find the movie you want'); })
     .catch(next);

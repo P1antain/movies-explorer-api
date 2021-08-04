@@ -24,9 +24,10 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'MongoError') {
         throw new ConflictError('This email is already registered');
-      } else {
+      } else if(err.name === 'ValidationError'){
         throw new BadRequestError('Incorrect data');
       }
+      throw err;
     })
     .catch(next);
 };
@@ -40,13 +41,15 @@ const login = (req, res, next) => {
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: '7d' },
       );
-      res
-        .send({ token });
+      res.cookie('jwt', token,
+        {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+        }).send({ token });
     })
-    .catch(() => {
-      throw new UnAuthorizedError('Invalid password or email');
-    })
-    .catch(next);
+    .catch(() =>
+      next(new UnAuthorizedError('Invalid password or email')))
 };
 
 const returnUser = (req, res, next) => {
@@ -64,7 +67,15 @@ const updateUser = (req, res, next) => {
       throw new BadRequestError('Data update error');
     })
     .then((user) => res.send(user))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Data update error'));
+      } else if (err.name === 'MongoError' && err.code === 11000) {
+        next(new ConflictError('This email is already registered'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const signOut = (req, res) => {
