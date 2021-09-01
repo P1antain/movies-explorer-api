@@ -25,6 +25,7 @@ const createUser = (req, res, next) => {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
           sameSite: true,
+          secure: true,
         }).send( user );
     })
     .catch((err) => {
@@ -52,6 +53,7 @@ const login = (req, res, next) => {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
           sameSite: true,
+          secure: true,
         }).send({ token });
     })
     .catch(() =>
