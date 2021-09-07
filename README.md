@@ -17,7 +17,7 @@
 ## Запуск проекта
 1) С помощью Git Bush выполняем команду
 
-`git clone https://github.com/P1antain/express-mesto.git`
+`git clone https://github.com/P1antain/movies-explorer-api.git`
 
 2) Открываем работу, в проектной среде через терминал выполняем команду(устанавливаем модули для локального сервера)
 
